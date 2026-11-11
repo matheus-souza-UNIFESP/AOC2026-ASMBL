@@ -1,0 +1,83 @@
+.data
+word: .asciiz "wordl"
+input: .space 6
+feedback: .space 6
+
+linebreak: .asciiz "\n\n"
+
+.text
+main:
+	li $t0, 6
+	li $t1, 0
+	li $t2, 5
+	
+loop_outer:
+	li $v0, 8
+	la $a0, input
+	li $a1, 6
+	syscall
+	
+	li $t3, 0
+	
+loop1:
+	lb $t4, input($t3)
+	lb $t5, word($t3)
+	
+	beq $t4, $t5, equal
+	li $t6, 'X'
+	j cont1
+	
+equal:
+	li $t6, 'O'
+cont1:
+	sb $t6, feedback($t3)
+	
+	addi $t3, $t3, 1
+	blt $t3, $t2, loop1
+	
+	li $t3, 0
+	li $t4, 5
+	
+loop2:
+	lb $t5, feedback($t3)
+	
+	beq $t5, 'O', cont2
+	subi $t4, $t4, 1
+	
+	li $t6, 0
+	lb $t7, input($t3)
+loop_in:
+	lb $t8, word($t6)
+	
+	bne $t7, $t8, cont_in
+	li $t9, '+'
+	sb $t9, feedback($t3)
+	j cont2
+	
+cont_in:
+	addi $t6, $t6, 1
+	blt $t6, $t2, loop_in
+	
+cont2:
+	addi $t3, $t3, 1
+	blt $t3, $t2, loop2
+	
+	li $v0, 4
+	la $a0, linebreak
+	syscall
+	
+	li $v0, 4
+	la $a0, feedback
+	syscall
+	
+	li $v0, 4
+	la $a0, linebreak
+	syscall
+	
+	beq $t4, $t2, end
+
+	addi $t1, $t1, 1
+	blt $t1, $t0, loop_outer
+end:
+	li $v0, 10
+	syscall
